@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="kr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Board Form</title>
+    <link rel="stylesheet" th:href="@{/css/base.css}" />
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
+</head>
+<body>
+    <div th:replace="/layout/header::header"></div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>게시글 목록</h1>
+        </div>
+        <div class="pull-right" style="width:100px;margin:10px 0;">
+            <a href="/board" class="btn btn-primary btn-block">등록</a>
+        </div>
+        <br/><br/><br/>
+        <div id="mainHide">
+            <table class="table table-hover">
+                <thead>
+                <tr>
+                    <th class="col-md-1">번호</th>
+                    <th class="col-md-5">제목</th>
+                    <th class="col-md-2">작성 날짜</th>
+                    <th class="col-md-2">수정 날짜</th>
+                </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="board : ${boardList}">
+                        <td th:text="${board.boardSeq}"></td>
+                        <td><a th:href="'/board?idx='+${board.boardSeq}" style="text-decoration: none;">
+                            <pre th:utext="${board.title}" style="margin:0px"></pre>
+                            </a>
+                        </td>
+                        <td th:text="${board.registDate}"></td>
+                        <td th:text="${board.modifyDate}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <br/>
+        <!-- Pagination -->
+        <nav aria-label="Page navigation" style="text-align:center;">
+            <ul class="btn-group pagination">
+                <li th:if="${pageMaker.prev}">
+                    <a aria-label="Previous" th:href="@{/board/boardList/(page=${pageMaker.startPage}-1)}"><i class="fa fa-chevron-left"></i>&laquo;</a>
+                </li>
+                    <li th:each="pageNum : *{#numbers.sequence(pageMaker.getStartPage(), pageMaker.getEndPage())}"
+                        th:class="${pageNum == pageMaker.getCri().getPage()} ? 'active'">
+                        <a th:href="@{/board/boardList/(page=${pageNum})}"><i class="fa" th:text="${pageNum}"></i></a>
+                    </li>
+                <li th:if="${pageMaker.next && pageMaker.endPage>0}">
+                    <a aria-label="Next" th:href="@{/board/boardList/(page=${pageMaker.endPage}+1)}"><i class="fa fa-chevron-right"></i>&raquo;</a>
+                </li>
+            </ul>
+        </nav>
+        <!-- /Pagination -->
+    </div>
+
+    <div th:replace="/layout/footer::footer"></div>
+</body>
+</html>

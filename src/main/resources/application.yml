@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: jdbc:mysql://192.150.0.18:3306/kdh?useSSL=false&characterEncoding=utf8
+    username: 'kdhuser'
+    password: '!smwrkdmf1'
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  devtools:
+    livereload:
+      enabled: true
+  thymeleaf:
+    enabled: true
+    encoding: utf-8
+  session:
+    timeout: 10
+mybatis:
+  type-aliases-package: com.example.board
+  mapper-locations: /mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true

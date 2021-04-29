@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="kr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Board Form</title>
+    <link rel="stylesheet" th:href="@{/css/base.css}" />
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
+</head>
+<body>
+    <div th:replace="layout/header::header"></div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>게시글 등록</h1>
+        </div>
+        <br/>
+        <input id="boardSeq" type="hidden" th:value="${board?.boardSeq}"/>
+        <input id="registDate" type="hidden" th:value="${board?.registDate}"/>
+        <table class="table">
+            <tr>
+                <th style="padding:13px 0 0 15px">게시판 선택</th>
+                <td>
+                    <div class="pull-left">
+                        <select class="form-control input-sm" id="board_type">
+                            <option>자유게시판</option>
+                        </select>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <th style="padding:13px 0 0 15px;">수정날짜</th>
+                <td><input id="board_date" type="text" class="col-md-1 form-control input-sm" readonly="readonly" th:value="${board?.modifyDate} ? ${board?.modifyDate} : ${#calendars.format(#calendars.createNow(),'yyyy-MM-dd HH:mm:ss')}"/></td>
+            </tr>
+            <tr>
+                <th style="padding:13px 0 0 15px;">제목</th>
+                <td><input id="board_title" name="board_title" type="text" th:readonly="${flg}" maxlength="30" class="col-md-1 form-control input-sm" th:value="${board?.title}"/></td>
+            </tr>
+            <tr>
+                <th style="padding:13px 0 0 15px;">내용</th>
+                <td><textarea id="board_content" name="board_content" th:readonly="${flg}" class="col-md-1 form-control input-sm" maxlength="140" rows="7" style="height: 200px;"
+                th:text="${board?.content}" pattern="^[a-zA-Z가-힣0-9]+$" th:maxlength="500"></textarea><span class="help-block"></span>
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+                <td></td>
+            </tr>
+        </table>
+        <div class="pull-left">
+            <a href="/board/boardList" class="btn btn-default">목록으로</a>
+        </div>
+        <div class="pull-right">
+            <button th:if="!${board?.boardSeq}" type="button" class="btn btn-primary" id="insert">저장</button>
+            <button th:if="${board?.boardSeq} and ${board?.userId.equals(session.user.userId)}" type="button" class="btn btn-info" id="update"
+                    th:onclick="'location.href=\''+'\/board/modify?idx='+${board.boardSeq}+'\''">수정</button>
+            <button th:if="${board?.boardSeq} and ${board?.userId.equals(session.user.userId)}" type="button" class="btn btn-danger" id="delete">삭제</button>
+            <button th:if="${board?.boardSeq}" type="button" class="btn btn-dark" id="reply"
+                th:onclick="'location.href=\''+'\/board/reply?idx='+${board.boardSeq}+'\''">답글작성</button>
+        </div>
+    </div>
+
+    <div th:replace="layout/footer::footer"></div>
+
+    <script th:src="@{/vendor/jquery/jquery-3.2.1.min.js}"></script>
+    <script>
+        function validate(title, content) {
+            var res = true;
+            if(typeof title == "undefined" || title == null || title == ""){
+                alert("제목을 입력해 주세요");
+                res = false;
+            }else if(typeof content == "undefined" || content == null || content == ""){
+                alert("내용을 입력해 주세요");
+                res = false;
+            }else if(title.trim().match("^[ㄱ-ㅎ|가-힣|a-z|A-Z|0-9|?!:.\\s]*$") == null){
+                alert("제목 : 영대소문자, 숫자, 한글을 제외한 글자는 입력을 제한합니다.");
+                res = false;
+            }else if(content.trim().match("^[ㄱ-ㅎ|가-힣|a-z|A-Z|0-9|?!:.\\s]*$") == null){
+                alert("내용 : 영대소문자, 숫자, 한글을 제외한 글자는 입력을 제한합니다.");
+                res = false;
+            }
+            return res;
+        }
+    </script>
+    <script th:if="!${board?.boardSeq}">
+        $('#insert').click(function () {
+            if(validate($('#board_title').val(), $('#board_content').val() ) == true){
+                var jsonData = JSON.stringify({
+                    title: $('#board_title').val(),
+                    content: $('#board_content').val(),
+                    registDate: $('#board_date').val(),
+                    modifyDate: $('#board_date').val()
+                });
+                $.ajax({
+                    url: "http://localhost:8080/api/register/board",
+                    type: "POST",
+                    data: jsonData,
+                    contentType: "application/json",
+                    dataType: "text",
+                    success: function (result) {
+                        alert(result);
+                        location.href = '/board/boardList';
+                    },
+                    error: function (request, error) {
+                        alert("code:" +request.status + "\n" + "message:" + request.responseText + "\n" + "error" + error);
+                    }
+                });
+            }
+        });
+    </script>
+    <script th:if="${board?.boardSeq}">
+        $('#delete').click(function () {
+            $.ajax({
+                    url: "http://localhost:8080/api/boards/" + $('#boardSeq').val(),
+                    type: "PATCH",
+                    dataType: "text",
+                    success: function (res) {
+                        alert('삭제 성공!');
+                        location.href = '/board/boardList';
+                    },
+                error: function (request, error) {
+                        console.log(error)
+                    alert("code:" +request.status + "\n" + "message:" + request.responseText + "\n" + "error" + error);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

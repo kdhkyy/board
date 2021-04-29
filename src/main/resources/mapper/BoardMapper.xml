@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.board.mapper.BoardMapper">
+
+    <!--  페이징 처리된 리스트 조회  -->
+    <select id="selectListPaging" parameterType="hashMap" resultType="com.example.board.domain.BoardDto">
+        SELECT BOARD_SEQ, PARENT_SEQ, GROUP_SEQ, BOARD_SORT, BOARD_DEPTH, USER_ID, TITLE, CONTENT, REGIST_DATE, REGIST_ID, MODIFY_DATE, MODIFY_ID, BOARD_DEL_FLG FROM tb_board
+        WHERE BOARD_DEL_FLG = 'N'
+        ORDER BY group_seq DESC, board_sort ASC
+        LIMIT #{pageStart}, #{perPageNum}
+    </select>
+
+    <!--  특정 페이지 상세보기  -->
+    <select id="selectDetail" parameterType="int" resultType="com.example.board.domain.BoardDto">
+        select BOARD_SEQ, PARENT_SEQ, GROUP_SEQ, BOARD_SORT, BOARD_DEPTH, USER_ID, TITLE, CONTENT, REGIST_DATE, REGIST_ID, MODIFY_DATE, MODIFY_ID, BOARD_DEL_FLG
+        FROM TB_BOARD WHERE BOARD_SEQ = #{value} AND BOARD_DEL_FLG = 'N'
+    </select>
+
+    <!--  총 게시글 수  -->
+    <select id="totalCount" resultType="int">
+        SELECT COUNT(*) FROM TB_BOARD WHERE BOARD_DEL_FLG = 'N'
+    </select>
+
+    <!--  새 글 작성  -->
+    <insert id="newInsertBoard" parameterType="com.example.board.domain.BoardDto">
+        INSERT INTO TB_BOARD(BOARD_SEQ, PARENT_SEQ, GROUP_SEQ, USER_ID, TITLE, CONTENT, REGIST_DATE, REGIST_ID, MODIFY_DATE, MODIFY_ID)
+        VALUES(NEXTVAL(board_seq), LASTVAL(board_seq), LASTVAL(board_seq), #{userId}, #{title},#{content}, #{registDate}, #{userId}, #{modifyDate},#{userId})
+    </insert>
+
+    <!--  답글 작성시 원글 기준 위치 변경  -->
+    <!--  group_seq = 원글 번호  -->
+    <!--  board_seq =  N번 board_seq를 가진 글의 덧글을 달 경우 N번의 board_seq -->
+    <update id="changeLocation" parameterType="HashMap">
+        UPDATE TB_BOARD SET BOARD_SORT = BOARD_SORT + 1
+        WHERE GROUP_SEQ = #{groupSeq}
+        AND BOARD_SORT > (SELECT BOARD_SORT FROM TB_BOARD a WHERE BOARD_SEQ = #{boardSeq})
+    </update>
+
+    <!--  답글 작성  -->
+    <insert id="insertReply" parameterType="com.example.board.domain.BoardDto">
+        INSERT INTO TB_BOARD(BOARD_SEQ, PARENT_SEQ, GROUP_SEQ, BOARD_SORT, BOARD_DEPTH, USER_ID, TITLE, CONTENT, REGIST_ID, MODIFY_ID)
+        VALUES(NEXTVAL(BOARD_SEQ), #{boardSeq}, #{groupSeq}, (SELECT BOARD_SORT +1 FROM TB_BOARD A WHERE BOARD_SEQ = #{boardSeq}),
+										(SELECT BOARD_DEPTH+1 FROM TB_BOARD B WHERE BOARD_SEQ = #{boardSeq}),
+										  #{userId}, #{title}, #{content}, #{userId}, #{userId})
+    </insert>
+
+    <!--  글 수정(작성자만 가능)  -->
+    <update id="updateBoard" parameterType="com.example.board.domain.BoardDto">
+        UPDATE TB_BOARD
+        SET TITLE = #{title}, CONTENT = #{content}, MODIFY_DATE = #{modifyDate}, MODIFY_ID = #{userId}
+        WHERE board_seq = #{boardSeq} AND USER_ID = #{userId} AND BOARD_DEL_FLG = 'N'
+    </update>
+
+    <!-- 글 삭제(작성자만 가능) -->
+    <update id="deleteBoard" parameterType="HashMap">
+        UPDATE TB_BOARD
+        SET BOARD_DEL_FLG = 'Y'
+        WHERE board_seq = #{boardSeq} AND USER_ID = #{userId}
+    </update>
+</mapper>
