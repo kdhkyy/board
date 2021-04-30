@@ -86,7 +86,7 @@
                     modifyDate: $('#modify_date').val()
                 });
                 $.ajax({
-                    url: "http://localhost:8080/api/modify/board",
+                    url: "/api/modify/board",
                     type: "POST",
                     data: jsonData,
                     contentType: "application/json",

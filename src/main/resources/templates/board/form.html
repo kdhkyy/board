@@ -92,7 +92,7 @@
                     modifyDate: $('#board_date').val()
                 });
                 $.ajax({
-                    url: "http://localhost:8080/api/register/board",
+                    url: "/api/register/board",
                     type: "POST",
                     data: jsonData,
                     contentType: "application/json",
@@ -111,7 +111,7 @@
     <script th:if="${board?.boardSeq}">
         $('#delete').click(function () {
             $.ajax({
-                    url: "http://localhost:8080/api/boards/" + $('#boardSeq').val(),
+                    url: "/api/boards/" + $('#boardSeq').val(),
                     type: "PATCH",
                     dataType: "text",
                     success: function (res) {

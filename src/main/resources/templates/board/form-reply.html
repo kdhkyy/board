@@ -109,7 +109,7 @@
                     modifyDate: $('#board_date2').val()
                 });
                 $.ajax({
-                    url: "http://localhost:8080/api/reply/board",
+                    url: "/api/reply/board",
                     type: "POST",
                     data: jsonData,
                     contentType: "application/json",
