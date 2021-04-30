@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- todo : 1 seconds는 테스트용이고 상용에서는 최소 60초이상 설정 필요 -->
+<configuration scan="true" scanPeriod="1 seconds">
+
+  <!-- DAEMON NOT NEED ${SERVER_NAME} -->
+  <property name="LOG_FILE" value="${LOG_PATH}/${SERVER_NAME}/${LOG_FILE}"/>
+  <property name="PATTERN" value="%d %-5level %-55(%logger{28}:%L[%M]) - %msg%n"/>
+
+  <!-- appender -->
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>${PATTERN}</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${LOG_FILE}.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${LOG_FILE}.%d{yyyy-MM-dd}.log.zip</fileNamePattern>
+      <maxHistory>30</maxHistory>
+    </rollingPolicy>
+    <encoder>
+      <pattern>${PATTERN}</pattern>
+    </encoder>
+  </appender>
+
+  <!-- business -->
+  <logger name="com.example" level="INFO"/>
+
+  <!-- log4jdgbc-log4j2-->
+  <logger name="jdbc.sqlonly" level="INFO"/>
+  <logger name="jdbc.resultsettable" level="INFO"/>
+  <logger name="jdbc.sqltiming" level="INFO"/>
+  <logger name="jdbc.audit" level="WARN"/>
+  <logger name="jdbc.resultset" level="WARN"/>
+
+  <!-- root -->
+  <root level="INFO">
+    <if condition='!p("spring.profiles.active").equals("dev") &amp;&amp; !p("spring.profiles.active").equals("product")'>
+      <then>
+        <appender-ref ref="STDOUT"/>
+      </then>
+    </if>
+    <appender-ref ref="FILE"/>
+  </root>
+</configuration>

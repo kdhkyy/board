@@ -2,6 +2,7 @@ package com.example.board.controller;
 
 import com.example.board.domain.UserDto;
 import com.example.board.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,6 +16,7 @@ import java.util.HashMap;
 import java.util.Optional;
 
 @RestController
+@Slf4j
 public class UserRestController {
 
     private final UserService userService;
@@ -27,6 +29,7 @@ public class UserRestController {
     @PostMapping(value = "/login", produces = "application/json")
     public HashMap login(@RequestBody UserDto userDto, Model model, HttpServletRequest request, HttpServletResponse response) throws IOException {
 
+        log.info("=-======= this is login !!! =====");
         HashMap map = new HashMap();
 
         UserDto temp = userService.findById(userDto);

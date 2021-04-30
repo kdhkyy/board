@@ -1,9 +1,11 @@
 spring:
+  application:
+    name: kdhBoard
   datasource:
-    url: jdbc:mysql://192.150.0.18:3306/kdh?useSSL=false&characterEncoding=utf8
+    url: jdbc:log4jdbc:mysql://192.150.0.18:3306/kdh?useSSL=false&characterEncoding=utf8
     username: 'kdhuser'
     password: '!smwrkdmf1'
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
   devtools:
     livereload:
       enabled: true
@@ -19,3 +21,8 @@ mybatis:
     map-underscore-to-camel-case: true
 server:
   port: 9999
+
+logging:
+  file:
+    name: kdhBoard
+    path: C:/logs/kdhboard/
