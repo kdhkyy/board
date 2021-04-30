@@ -32,18 +32,24 @@ public class UserRestController {
         log.info("=-======= this is login !!! =====");
         HashMap map = new HashMap();
 
-        UserDto temp = userService.findById(userDto);
-        if(Optional.ofNullable(temp).isPresent()){
-            map.put("idCheck" , true);
-            if(userDto.getPasswd().equals(temp.getPasswd())) {
-                HttpSession session = request.getSession();
-                session.setAttribute("user",temp);
-                map.put("passwdCheck", true);
+        try {
+            UserDto temp = userService.findById(userDto);
+
+            if(Optional.ofNullable(temp).isPresent()){
+                map.put("idCheck" , true);
+                if(userDto.getPasswd().equals(temp.getPasswd())) {
+                    HttpSession session = request.getSession();
+                    session.setAttribute("user",temp);
+                    map.put("passwdCheck", true);
+                }
+                else map.put("passwdCheck", false);
+            }else{
+                map.put("idCheck" , false);
             }
-            else map.put("passwdCheck", false);
-        }else{
+        }catch(Exception e){
             map.put("idCheck" , false);
         }
+
         return map;
     }
 
