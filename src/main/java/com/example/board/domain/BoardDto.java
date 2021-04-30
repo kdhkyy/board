@@ -1,9 +1,7 @@
 package com.example.board.domain;
 
-import lombok.Builder;
 import lombok.Data;
 
-@Builder
 @Data
 public class BoardDto {
     private long boardSeq;

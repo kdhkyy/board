@@ -2,13 +2,11 @@ package com.example.board.controller;
 
 import com.example.board.domain.UserDto;
 import com.example.board.service.UserService;
-import com.sun.javafx.collections.MappingChange;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -43,7 +41,6 @@ public class UserRestController {
         }else{
             map.put("idCheck" , false);
         }
-        System.out.println(map);
         return map;
     }
 

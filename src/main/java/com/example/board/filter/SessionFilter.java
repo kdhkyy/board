@@ -1,6 +1,5 @@
 package com.example.board.filter;
 
-import com.example.board.domain.UserDto;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.*;
@@ -29,7 +28,7 @@ public class SessionFilter implements Filter {
     }
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
+    public void init(FilterConfig filterConfig) {
         log.info("init SessionFilter");
     }
 

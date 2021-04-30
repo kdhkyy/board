@@ -4,7 +4,6 @@ import com.example.board.domain.BoardDto;
 import com.example.util.Criteria;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
-
 import java.util.HashMap;
 import java.util.List;
 
