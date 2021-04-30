@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -19,8 +18,8 @@ public class UserService {
         this.userMapper = userMapper;
     }
 
-    public Optional<UserDto>  findByIdAndPasswd(UserDto userDto){
-        return userMapper.findByIdAndPasswd(userDto);
+    public UserDto findById(UserDto userDto){
+        return userMapper.findById(userDto);
     }
 
 };

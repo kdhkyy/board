@@ -30,7 +30,6 @@
 
         for(var i=0; i<input.length; i++) {
             if(validate(input[i]) == false){
-                showValidate(input[i]);
                 check=false;
             }
         }
@@ -43,10 +42,12 @@
     function validate (input) {
         if($(input).attr('type') == 'id' || $(input).attr('name') == 'id') {
             if($(input).val().trim().match("^[a-zA-Z0-9]+$") == null) {
+                showValidateId(input);
                 return false;
             }
         } else if($(input).attr('type') == 'password' || $(input).attr('name') == 'pass') {
             if($(input).val().trim().match("^(?=.*[A-Za-z])(?=.*\\d)(?=.*[$@$!%*#?&])[A-Za-z\\d$@$!%*#?&]{8,16}$") == null) {
+                showValidatePassword(input);
                 return false;
             }
         }else {
@@ -56,17 +57,24 @@
         }
     }
 
-    function showValidate(input) {
+    function showValidateId(input) {
         var thisAlert = $(input).parent();
-
-        $(thisAlert).addClass('alert-validate');
+        $(input).setCustomValidity("아이디는 영대소문자, 숫자로 입력해주세요");
+        // $(thisAlert).addClass('alert-validate');
     }
+
+    function showValidatePassword(input) {
+        var thisAlert = $(input).parent();
+        $(input).setCustomValidity("아이디는 영대소문자, 숫자로 입력해주세요");
+        // $(thisAlert).addClass('alert-validate');
+
+    }
+
 
     function hideValidate(input) {
         var thisAlert = $(input).parent();
 
         $(thisAlert).removeClass('alert-validate');
     }
-
 
 })(jQuery);

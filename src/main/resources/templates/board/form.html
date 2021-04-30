@@ -82,6 +82,7 @@
         }
     </script>
     <script th:if="!${board?.boardSeq}">
+
         $('#insert').click(function () {
             if(validate($('#board_title').val(), $('#board_content').val() ) == true){
                 var jsonData = JSON.stringify({
@@ -123,6 +124,7 @@
                 }
             });
         });
+
     </script>
 </body>
 </html>

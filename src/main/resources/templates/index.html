@@ -15,30 +15,30 @@
 	<div class="limiter">
 		<div class="container-login100">
 			<div class="wrap-login100">
-				    <form class="login100-form validate-form" th:action="@{/login}" th:method="POST" id="loginForm" name="loginForm">
+				    <div class="login100-form validate-form">
 					<span class="login100-form-title p-b-43">
 						자유게시판
 					</span>
 					
 					<div class="wrap-input100 validate-input" data-validate = "ID형식 : 대소문자 영문 숫자">
-						<input class="input100" type="userId" name="userId" pattern="^[a-zA-Z0-9]+$" maxlength="10">
+						<input class="input100" type="text" id="userId" name="userId" pattern="^[a-zA-Z0-9]+$" maxlength="10" th:required="입력해주세요">
 						<span class="focus-input100"></span>
 						<span class="label-input100">Id</span>
 					</div>
 
 					<div class="wrap-input100 validate-input" data-validate="Password형식 : 대소문자영문 + 숫자 + 특수문자">
-						<input class="input100" type="passwd" name="passwd"
+						<input class="input100" type="password" id="passwd" name="passwd" th:required="입력해주세요"
 							   pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,16}$" maxlength="16">
 						<span class="focus-input100"></span>
 						<span class="label-input100">Password</span>
 					</div>
 
 					<div class="container-login100-form-btn">
-						<button class="login100-form-btn">
+						<button class="login100-form-btn loginBtn">
 							Login
 						</button>
 					</div>
-				</form>
+				</div>
 
 				<div class="login100-more" style="background-image: url('images/bg-01.jpg');">
 				</div>
@@ -61,5 +61,36 @@
 	<script th:src="@{/vendor/countdowntime/countdowntime.js}"></script>
 	<!--===============================================================================================-->
 	<script th:src="@{/js/main.js}"></script>
+	<script>
+		$( document ).ready(function() {
+			$('.loginBtn').click(function () {
+				var jsonData = JSON.stringify({
+					userId : $('#userId').val(),
+					passwd: $('#passwd').val(),
+				});
+				$.ajax({
+					url: "http://localhost:8080/login/",
+					type: "POST",
+					data: jsonData,
+					contentType: "application/json",
+					dataType: "json",
+					success: function (res) {
+						console.log(res);
+						if(res.idCheck) {
+							if(res.passwdCheck) location.href = '/board/boardList';
+							else alert("패스워드가 맞지 않습니다.");
+						}else{
+							alert("아이디가 존재하지 않습니다.");
+							return false;
+						}
+					},
+					error: function (request, error) {
+						console.log("code:" +request.status + "\n" + "message:" + request.responseText + "\n" + "error" + error);
+						alert("code:" +request.status + "\n" + "message:" + request.responseText + "\n" + "error" + error);
+					}
+				});
+			})
+		});
+	</script>
 </body>
 </html>
