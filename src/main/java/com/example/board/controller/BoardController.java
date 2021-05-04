@@ -5,12 +5,16 @@ import com.example.board.domain.UserDto;
 import com.example.board.service.BoardService;
 import com.example.util.Criteria;
 import com.example.util.PageMarker;
+import com.example.util.TypeCheck;
+import org.apache.commons.lang3.StringUtils;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
 import javax.servlet.http.HttpSession;
 import java.util.List;
 
@@ -28,57 +32,78 @@ public class BoardController {
         this.boardService = boardService;
     }
 
+    TypeCheck typeCheck = new TypeCheck();
+
     @GetMapping({"", "/"})
-    public String board(@RequestParam(value = "idx", defaultValue = "0") Long idx, Model model) {
-        boolean flg = false;
-        if(idx != 0) flg = true;
-        model.addAttribute("flg",flg);
-        model.addAttribute("board",boardService.selectDetail(Math.toIntExact(idx)));
-        return "board/form";
+    public String board(@RequestParam(value = "idx", defaultValue = "0") String idx, Model model) {
+        flg = false;
+        BoardDto bto = boardService.selectDetail(idx);
+        if(typeCheck.isNumeric(idx) || !StringUtils.isBlank(bto.getContent())){
+            if(Long.parseLong(idx) != 0) flg = true;
+            model.addAttribute("flg",flg);
+            model.addAttribute("board",bto);
+            return "board/form";
+        }else{
+            throw new IllegalStateException("올바르지 않은 요청");
+        }
     }
 
     @GetMapping("/modify")
-    public String modify(@RequestParam(value = "idx") long idx, Model model, HttpSession session){
-        boolean flg = false;
-        BoardDto boardDto = boardService.selectDetail(Math.toIntExact(idx));
-        if(!boardDto.getUserId().equals(((UserDto)session.getAttribute("user")).getUserId()) ) {
-            flg = true;
+    public String modify(@RequestParam(value = "idx") String idx, Model model, HttpSession session){
+        flg = false;
+        if(typeCheck.isNumeric(idx)){
+            BoardDto boardDto = boardService.selectDetail(idx);
+            if(!boardDto.getUserId().equals(((UserDto)session.getAttribute("user")).getUserId()) ) {
+                flg = true;
+            }
+            model.addAttribute("flg", flg);
+            model.addAttribute("board",boardDto);
+        }else{
+            throw new IllegalStateException("올바르지 않은 요청");
         }
-        model.addAttribute("flg", flg);
-        model.addAttribute("board",boardDto);
         return "board/form-modify";
     }
 
     @GetMapping("/reply")
-    public String reply(@RequestParam(value = "idx") long idx, Model model){
+    public String reply(@RequestParam(value = "idx") String idx, Model model){
         flg = true;
-        model.addAttribute("flg", flg);
-        model.addAttribute("board",boardService.selectDetail(Math.toIntExact(idx)));
+        if(typeCheck.isNumeric(idx)){
+            model.addAttribute("flg", flg);
+            model.addAttribute("board",boardService.selectDetail(idx));
+        }else{
+            throw new IllegalStateException("올바르지 않은 요청");
+        }
         return "board/form-reply";
     }
 
     @GetMapping("/boardList")
-    public String list(Model model, Criteria criteria) throws Exception{
+    public String list(Model model, Criteria criteria) {
 
-        List<BoardDto> list = boardService.selectListPaging(criteria);
+        if(typeCheck.isNumeric(String.valueOf(criteria.getPage()))){
+            PageMarker pageMarker = new PageMarker();
+            pageMarker.setCri(criteria);
+            pageMarker.setTotalCount(boardService.totalCount());
+            if(criteria.getPage() <= pageMarker.getEndPage()){
+                List<BoardDto> list = boardService.selectListPaging(criteria);
+                model.addAttribute("boardList",list);
+                model.addAttribute("pageMaker", pageMarker);
+                System.out.println(criteria);
+                System.out.println(pageMarker);
+                StringBuilder builder = new StringBuilder();
+                for(int i = 0; i< list.size(); i++){
+                    for(int j=0;j<Integer.parseInt(list.get(i).getBoardDepth()); j++){
 
-        PageMarker pageMarker = new PageMarker();
-        pageMarker.setCri(criteria);
-        pageMarker.setTotalCount(boardService.totalCount());
-
-        model.addAttribute("boardList",list);
-        model.addAttribute("pageMaker", pageMarker);
-
-        StringBuilder builder = new StringBuilder();
-        for(int i = 0; i< list.size(); i++){
-            for(int j=0;j<list.get(i).getBoardDepth(); j++){
-
-                builder.append("&nbsp;&nbsp;&nbsp;");
+                        builder.append("&nbsp;&nbsp;&nbsp;");
+                    }
+                    if(Long.parseLong(list.get(i).getBoardDepth()) != 0) builder.append("&#9495;");
+                    list.get(i).setTitle(builder.append(list.get(i).getTitle()).toString());
+                    builder.setLength(0);
+                }
             }
-            if(list.get(i).getBoardDepth() != 0) builder.append("&#9495;");
-            list.get(i).setTitle(builder.append(list.get(i).getTitle()).toString());
-            builder.setLength(0);
+        } else{
+            throw new IllegalStateException("올바르지 않은 요청");
         }
+        
         return "board/list";
     }
 }

@@ -3,12 +3,19 @@ package com.example.board.controller;
 import com.example.board.domain.BoardDto;
 import com.example.board.domain.UserDto;
 import com.example.board.service.BoardService;
+import com.example.util.TypeCheck;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.util.Strings;
+import org.codehaus.commons.compiler.util.StringUtil;
+import org.codehaus.commons.nullanalysis.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 
 @Slf4j
@@ -18,6 +25,7 @@ public class BoardRestContoller {
 
     private final BoardService boardService;
     String res;
+    TypeCheck typeCheck = new TypeCheck();
 
     @Autowired
     public BoardRestContoller(BoardService boardService) {
@@ -27,16 +35,24 @@ public class BoardRestContoller {
     @ResponseBody
     @PostMapping(value = "/register/board")
     public String saveBoard(@RequestBody BoardDto boardDto, HttpServletRequest request){
-        try {
-            UserDto userDto = (UserDto) request.getSession().getAttribute("user");
-            boardDto.setUserId(userDto.getUserId());
-            log.info("INPUT VALUE : " + boardDto.getTitle());
-            boardService.newInsertBoard(boardDto);
-            res = "저장 완료!!";
-        } catch (Exception e) {
-            res = "저장 ERROR!!";
-            e.printStackTrace();
+        System.out.println(boardDto);
+        if(!StringUtils.isBlank(boardDto.getTitle())){
+            try {
+                UserDto userDto = (UserDto) request.getSession().getAttribute("user");
+                boardDto.setRegistDate(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss").format(LocalDateTime.now()));
+                boardDto.setModifyId(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss").format(LocalDateTime.now()));
+                boardDto.setUserId(userDto.getUserId());
+                log.info("INPUT VALUE : " + boardDto.getTitle());
+                boardService.newInsertBoard(boardDto);
+                res = "저장 완료!!";
+            } catch (Exception e) {
+                res = "저장 ERROR!!";
+                e.printStackTrace();
+            }
+        } else {
+            throw new IllegalStateException("올바르지 않은 요청");
         }
+
         return res;
     }
 
@@ -45,6 +61,7 @@ public class BoardRestContoller {
     public String updateBoard(@RequestBody BoardDto boardDto, HttpServletRequest request){
         try {
             UserDto userDto = (UserDto) request.getSession().getAttribute("user");
+            boardDto.setModifyId(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss").format(LocalDateTime.now()));
             boardDto.setUserId(userDto.getUserId());
             log.info("INPUT VALUE : " + boardDto);
             boardService.updateBoard(boardDto);
@@ -75,18 +92,30 @@ public class BoardRestContoller {
         return res;
     }
 
+
     @PatchMapping("/boards/{idx}")
-    public String deleteBoard(@PathVariable long idx, HttpSession session){
-        res = "삭제 완료";
+    public HashMap deleteBoard(@PathVariable String idx, HttpSession session){
         HashMap hashMap = new HashMap();
-        hashMap.put("boardSeq",idx);
-        hashMap.put("userId", ((UserDto) session.getAttribute("user")).getUserId());
-        try{
-            boardService.deleteBoard(hashMap);
-        }catch (Exception e){
-            res = "삭제 ERROR!!";
-            e.printStackTrace();
+        TypeCheck t = new TypeCheck();
+        if(t.isNumeric(idx)){
+            System.out.println(t.isNumeric(idx));
+            System.out.println(boardService.countReply(idx));
+            try{
+                if(boardService.countReply(idx) == 0) {
+                    hashMap.put("boardSeq",idx);
+                    hashMap.put("userId", ((UserDto) session.getAttribute("user")).getUserId());
+                    hashMap.put("deleteFlg",true);
+                    boardService.deleteBoard(hashMap);
+                }else {
+                    hashMap.put("replyFlg",false);
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+                hashMap.put("errorFlg", false);
+            }
+        } else{
+            hashMap.put("typeFlg",false);
         }
-        return res;
+        return hashMap;
     }
 };

@@ -3,8 +3,8 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>Board Form</title>
-    <link rel="stylesheet" th:href="@{/css/base.css}" />
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/base.css}" />
 </head>
 <body>
     <div th:replace="layout/header::header"></div>
@@ -52,10 +52,11 @@
         <div class="pull-right">
             <button th:if="!${board?.boardSeq}" type="button" class="btn btn-primary" id="insert">저장</button>
             <button th:if="${board?.boardSeq} and ${board?.userId.equals(session.user.userId)}" type="button" class="btn btn-info" id="update"
-                    th:onclick="'location.href=\''+'\/board/modify?idx='+${board.boardSeq}+'\''">수정</button>
+                    th:onclick="'window.location.href = \'' + @{/board/modify?idx={id}(id=${board?.boardSeq})} + '\''">수정</button>
+
             <button th:if="${board?.boardSeq} and ${board?.userId.equals(session.user.userId)}" type="button" class="btn btn-danger" id="delete">삭제</button>
             <button th:if="${board?.boardSeq}" type="button" class="btn btn-dark" id="reply"
-                th:onclick="'location.href=\''+'\/board/reply?idx='+${board.boardSeq}+'\''">답글작성</button>
+                    th:onclick="'window.location.href = \'' + @{/board/reply?idx={id}(id=${board?.boardSeq})} + '\''">답글작성</button>
         </div>
     </div>
 
@@ -110,19 +111,38 @@
     </script>
     <script th:if="${board?.boardSeq}">
         $('#delete').click(function () {
-            $.ajax({
+            if(confirm("정말 삭제하시겠습니까?")) {
+                $.ajax({
                     url: "/api/boards/" + $('#boardSeq').val(),
                     type: "PATCH",
-                    dataType: "text",
+                    dataType: "json",
                     success: function (res) {
-                        alert('삭제 성공!');
-                        location.href = '/board/boardList';
+                        if(res.deleteFlg) {
+                            alert("삭제 완료!");
+                            location.href = '/board/boardList';
+                        }else {
+                            if (!res.replyFlg) {
+                                alert("답글이 존재하여 삭제가 불가능합니다.");
+                                return false;
+                            } else if (!res.errorFlg) {
+                                alert("오류로 인하여 삭제하지 못하였습니다.");
+                                return false;
+                            } else if (res.typeFlg) {
+                                alert("정상적인 타입이 아닙니다.");
+                                return false;
+                            }
+                            alert("올바르지 않은 요청으로 인해 페이지를 이동합니다.");
+                            location.href = '/board/boardList';
+                        }
                     },
-                error: function (request, error) {
+                    error: function (request, error) {
                         console.log(error)
-                    alert("code:" +request.status + "\n" + "message:" + request.responseText + "\n" + "error" + error);
-                }
-            });
+                        alert("code:" +request.status + "\n" + "message:" + request.responseText + "\n" + "error" + error);
+                    }
+                });
+            }else{
+                return false;
+            }
         });
 
     </script>

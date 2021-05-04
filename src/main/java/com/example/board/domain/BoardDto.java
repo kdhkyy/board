@@ -4,11 +4,21 @@ import lombok.Data;
 
 @Data
 public class BoardDto {
-    private long boardSeq;
-    private long parentSeq;
-    private long groupSeq;
-    private long boardSort;
-    private long boardDepth;
+    //primitive type : long
+    private String boardSeq;
+
+    //primitive type : long
+    private String parentSeq;
+
+    //primitive type : long
+    private String groupSeq;
+
+    //primitive type : long
+    private String boardSort;
+
+    //primitive type : long
+    private String boardDepth;
+
     private String userId;
     private String title;
     private String content;
@@ -16,5 +26,4 @@ public class BoardDto {
     private String registId;
     private String modifyDate;
     private String modifyId;
-    private char boardDelFlg;
 }

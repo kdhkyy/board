@@ -31,7 +31,6 @@ public class UserRestController {
 
         log.info("=-======= this is login !!! =====");
         HashMap map = new HashMap();
-
         try {
             UserDto temp = userService.findById(userDto);
 

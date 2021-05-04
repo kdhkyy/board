@@ -15,7 +15,7 @@ public interface BoardMapper {
     List<BoardDto> selectListPaging(Criteria criteria);
 
     //특정 페이지 상세보기
-    BoardDto selectDetail(int boardSeq);
+    BoardDto selectDetail(long boardSeq);
 
     // 총 게시글 수
     int totalCount();
@@ -31,6 +31,9 @@ public interface BoardMapper {
 
     //글 수정(작성자만 가능)
     int updateBoard(BoardDto boardDto);
+
+    // 답글이 존재하는지 여부 확인
+    long countReply(long boardSeq);
 
     //글 삭제(작성자만 가능)
     int deleteBoard(HashMap hashMap);

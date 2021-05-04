@@ -4,27 +4,26 @@
 
     <!--  페이징 처리된 리스트 조회  -->
     <select id="selectListPaging" parameterType="hashMap" resultType="com.example.board.domain.BoardDto">
-        SELECT BOARD_SEQ, PARENT_SEQ, GROUP_SEQ, BOARD_SORT, BOARD_DEPTH, USER_ID, TITLE, CONTENT, REGIST_DATE, REGIST_ID, MODIFY_DATE, MODIFY_ID, BOARD_DEL_FLG FROM tb_board
-        WHERE BOARD_DEL_FLG = 'N'
+        SELECT BOARD_SEQ, PARENT_SEQ, GROUP_SEQ, BOARD_SORT, BOARD_DEPTH, USER_ID, TITLE, CONTENT, REGIST_DATE, REGIST_ID, MODIFY_DATE, MODIFY_ID FROM tb_board
         ORDER BY group_seq DESC, board_sort ASC
         LIMIT #{pageStart}, #{perPageNum}
     </select>
 
     <!--  특정 페이지 상세보기  -->
-    <select id="selectDetail" parameterType="int" resultType="com.example.board.domain.BoardDto">
-        select BOARD_SEQ, PARENT_SEQ, GROUP_SEQ, BOARD_SORT, BOARD_DEPTH, USER_ID, TITLE, CONTENT, REGIST_DATE, REGIST_ID, MODIFY_DATE, MODIFY_ID, BOARD_DEL_FLG
-        FROM TB_BOARD WHERE BOARD_SEQ = #{value} AND BOARD_DEL_FLG = 'N'
+    <select id="selectDetail" parameterType="long" resultType="com.example.board.domain.BoardDto">
+        select BOARD_SEQ, PARENT_SEQ, GROUP_SEQ, BOARD_SORT, BOARD_DEPTH, USER_ID, TITLE, CONTENT, REGIST_DATE, REGIST_ID, MODIFY_DATE, MODIFY_ID
+        FROM TB_BOARD WHERE BOARD_SEQ = #{value}
     </select>
 
     <!--  총 게시글 수  -->
     <select id="totalCount" resultType="int">
-        SELECT COUNT(*) FROM TB_BOARD WHERE BOARD_DEL_FLG = 'N'
+        SELECT COUNT(*) FROM TB_BOARD
     </select>
 
     <!--  새 글 작성  -->
     <insert id="newInsertBoard" parameterType="com.example.board.domain.BoardDto">
-        INSERT INTO TB_BOARD(BOARD_SEQ, PARENT_SEQ, GROUP_SEQ, USER_ID, TITLE, CONTENT, REGIST_DATE, REGIST_ID, MODIFY_DATE, MODIFY_ID)
-        VALUES(NEXTVAL(board_seq), LASTVAL(board_seq), LASTVAL(board_seq), #{userId}, #{title},#{content}, #{registDate}, #{userId}, #{modifyDate},#{userId})
+        INSERT INTO TB_BOARD(BOARD_SEQ, GROUP_SEQ, USER_ID, TITLE, CONTENT, REGIST_DATE, REGIST_ID, MODIFY_DATE, MODIFY_ID)
+        VALUES(NEXTVAL(board_seq), LASTVAL(board_seq), #{userId}, #{title},#{content}, #{registDate}, #{userId}, #{modifyDate},#{userId})
     </insert>
 
     <!--  답글 작성시 원글 기준 위치 변경  -->
@@ -48,13 +47,18 @@
     <update id="updateBoard" parameterType="com.example.board.domain.BoardDto">
         UPDATE TB_BOARD
         SET TITLE = #{title}, CONTENT = #{content}, MODIFY_DATE = #{modifyDate}, MODIFY_ID = #{userId}
-        WHERE board_seq = #{boardSeq} AND USER_ID = #{userId} AND BOARD_DEL_FLG = 'N'
-    </update>
-
-    <!-- 글 삭제(작성자만 가능) -->
-    <update id="deleteBoard" parameterType="HashMap">
-        UPDATE TB_BOARD
-        SET BOARD_DEL_FLG = 'Y'
         WHERE board_seq = #{boardSeq} AND USER_ID = #{userId}
     </update>
+
+    <!-- 답글이 존재하는지 여부 확인 -->
+    <select id="countReply" parameterType="long" resultType="long">
+        SELECT COUNT(*) FROM TB_board where parent_seq = #{boardSeq}
+    </select>
+
+    <!-- 글 삭제(작성자만 가능) -->
+    <delete id="deleteBoard" parameterType="HashMap">
+        DELETE FROM TB_BOARD
+        WHERE board_seq = #{boardSeq} AND user_id = #{userId}
+    </delete>
+
 </mapper>

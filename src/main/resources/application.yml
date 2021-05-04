@@ -20,6 +20,10 @@ mybatis:
   configuration:
     map-underscore-to-camel-case: true
 server:
+  error:
+    whitelabel:
+      enabled: false
+    path: /error
   port: 9999
 
 logging:

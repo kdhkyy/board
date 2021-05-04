@@ -19,18 +19,15 @@ public class UserService {
     }
 
     public UserDto findById(UserDto userDto) {
-        if(userDto == null){
-            throw new IllegalStateException("올바르지 않은 요청");
-        }
+        if(userDto == null) throw new IllegalStateException("올바르지 않은 요청");
 
-        if(StringUtils.isBlank(userDto.getUserId())){
-            throw new IllegalStateException("아이디를 입력해주세요.");
-        }
+        if(StringUtils.isBlank(userDto.getUserId())) throw new IllegalStateException("아이디를 입력해주세요.");
 
-        if(StringUtils.isBlank(userDto.getPasswd())){
-            throw new IllegalStateException("비밀번호를 입력해주세요.");
-        }
+        if(StringUtils.isBlank(userDto.getPasswd())) throw new IllegalStateException("비밀번호를 입력해주세요.");
 
+        if(userDto.getUserId().length() > 10) throw new IllegalStateException("아이디가 10자리를 넘었습니다.");
+
+        if(userDto.getPasswd().length() > 16) throw new IllegalStateException("비밀번호가 16자리를 넘었습니다.");
 
         return userMapper.findById(userDto);
     }

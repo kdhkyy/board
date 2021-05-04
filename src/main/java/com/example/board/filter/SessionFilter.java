@@ -40,6 +40,7 @@ public class SessionFilter implements Filter {
         if(!whiteList.contains(uri)){
             HttpSession session = req.getSession();
             Optional optional = Optional.ofNullable(session.getAttribute("user"));
+            System.out.println(optional);
             if(!optional.isPresent()){
                 log.info("Custom Filtter End 1 ");
                 ((HttpServletResponse)response).sendRedirect("/");

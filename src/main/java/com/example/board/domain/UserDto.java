@@ -9,6 +9,10 @@ public class UserDto {
     private String userId;
     private String passwd;
     private String name;
-    private char sex;
-    private short age;
+
+    //primitive type : char
+    private String sex;
+
+    //primitive type : short
+    private String age;
 };
