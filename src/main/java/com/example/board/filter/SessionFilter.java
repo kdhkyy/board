@@ -25,6 +25,7 @@ public class SessionFilter implements Filter {
         whiteList.add("/static");
         whiteList.add("/css");
         whiteList.add("/login");
+        whiteList.add("/actuator");
     }
 
     @Override
